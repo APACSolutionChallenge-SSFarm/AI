@@ -55,7 +55,12 @@ def predict_image(file_bytes):
 # Gemini API를 통해 시세 질의
 def ask_price_gemini(item, quality):
     today = datetime.today().strftime('%Y년 %m월 %d일')
-    prompt = f"Give me only the price in the form of '0000원' for {quality} grade {item} in Korea on {today}. If you don't know the real price, estimate it based on past or common sense. Do not explain anything. Just return a number like '1234원'. Never say 'unknown'."
+    prompt = (
+    f"You are a market analyst. Your task is to estimate the price of {quality} grade {item} in Korea on {today}. "
+    f"Always answer with a **plausible estimated price** as a 4-digit integer. "
+    f"Do not say you cannot answer. Do not explain. Do not provide any reason or context. "
+    f"Return only a number like 1234. No words. No punctuation. No line breaks. No \n in the end. Just the number."
+)
 
     endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     api_key = os.getenv("GEMINI_API_KEY")
@@ -77,7 +82,9 @@ def ask_price_gemini(item, quality):
 
     if response.status_code == 200:
         content = response.json()
-        return content["candidates"][0]["content"]["parts"][0]["text"]
+        raw_text = content["candidates"][0]["content"]["parts"][0]["text"]
+        price_clean = ''.join(filter(str.isdigit, raw_text))  # 숫자만 남기기
+        return price_clean
     else:
         raise Exception(f"GEMINI API error: {response.status_code}, {response.text}")
 
