@@ -6,3 +6,4 @@ albumentations
 Pillow
 python-multipart
 requests
+python-dotenv
