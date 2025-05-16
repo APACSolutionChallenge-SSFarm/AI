@@ -5,3 +5,4 @@ torchvision
 albumentations
 Pillow
 python-multipart
+requests
